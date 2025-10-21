@@ -1,94 +1,95 @@
+```html
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Org Chart</title>
+  <title>Org Chart (Open-source: dabeng/orgchart)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- jQuery + OrgChart (MIT) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/orgchart/dist/css/jquery.orgchart.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/orgchart/dist/js/jquery.orgchart.min.js"></script>
+
   <style>
     html, body { height: 100%; margin: 0; }
-    #chart_wrap { width: 100%; height: 100vh; overflow: auto; box-sizing: border-box; padding: 12px; }
-    #chart_div { width: 1200px; } /* make wider than iframe to encourage horizontal scrolling */
-    .title { color:#555; font-size: 12px; line-height: 1.2; }
-    .name { font-weight: 600; }
+    #chart-wrap { height: 100vh; overflow: hidden; box-sizing: border-box; padding: 12px; }
+    #chart { height: 100%; }
+    .orgchart { background: #fff; }
+    .orgchart .title { font-weight: 600; }
+    .orgchart .content { font-size: 12px; color: #555; }
   </style>
-  <script src="https://www.gstatic.com/charts/loader.js"></script>
-  <script>
-    google.charts.load('current', { packages: ['orgchart'] });
-    google.charts.setOnLoadCallback(drawChart);
-
-    function nodeHTML(name, title) {
-      if (!title) return `<div class="name">${name}</div>`;
-      return `<div class="name">${name}</div><div class="title">${title}</div>`;
-    }
-
-    function drawChart() {
-      const data = new google.visualization.DataTable();
-      data.addColumn('string', 'Name');
-      data.addColumn('string', 'Manager');
-      data.addColumn('string', 'Tooltip');
-
-      // Helper to add rows: id/name, manager, title (shown in node + tooltip)
-      function add(name, manager, title) {
-        const node = { v: name, f: nodeHTML(name, title) };
-        data.addRow([ node, manager || '', title || '' ]);
-      }
-
-      // Root (no title provided for Kenton Jarvis in your table)
-      add('Kenton Jarvis', '', '');
-
-      // Directs to Kenton
-      add('Sophie Dekkers', 'Kenton Jarvis', 'Chief Commercial Officer');
-      add('Robert Birge', 'Kenton Jarvis', 'Chief Customer and Marketing Officer');
-      add('Donna Collins', 'Kenton Jarvis', 'Executive Assistant to CEO');
-      add('David Morgan', 'Kenton Jarvis', 'Chief Operations Officer');
-      add('Opal Perry', 'Kenton Jarvis', 'Chief Data and Technology Officer');
-      add('Thomas Haagensen', 'Kenton Jarvis', 'Group Markets Director');
-      add('Rebecca Mills', 'Kenton Jarvis', 'Group General Counsel and Company Secretary');
-      add('Elly Tomlins', 'Kenton Jarvis', 'Chief People Officer');
-      add('Garry Wilson', 'Kenton Jarvis', 'Chief Executive Officer – easyJet Holidays');
-      add('Jan De Raeymaeker', 'Kenton Jarvis', 'Chief Financial Officer');
-
-      // Reports to David Morgan
-      add('Daniele Grassini', 'David Morgan', 'Director of Training and Standards');
-      add('Michael Brown', 'David Morgan', 'Director of Cabin Services');
-      add('Neil Slaven', 'David Morgan', 'Director of Operations Strategy and Planning');
-      add('Karen Honour', 'David Morgan', 'Executive Assistant');
-      add('Simon Cox', 'David Morgan', 'Director of Ground Operations');
-      add('Chris Hartman', 'David Morgan', 'Operations Consultant');
-      add('Gill Baudot', 'David Morgan', 'Director of Network Control');
-      add('Brendan McConnellogue', 'David Morgan', 'Director of Engineering & Maintenance');
-      add('Bart Prudon', 'David Morgan', 'Director of Flight Operations');
-      add('Jim Pegram', 'David Morgan', 'Director Safety, Security & Compliance');
-      add('Hugh McConnellogue', 'David Morgan', 'Director of Gatwick');
-      add('Jean-Marc Thevenaz', 'David Morgan', 'Managing Director Switzerland');
-
-      // Reports to Bart Prudon
-      add('Jamie Fraser', 'Bart Prudon', 'Head of Operations Transformation');
-      add('Alexander Gerritsen', 'Bart Prudon', 'Chief Pilot');
-      add('Paul Ingram', 'Bart Prudon', 'Head of Flight Crew Operations');
-      add('Emily Tollafield', 'Bart Prudon', 'Head of Business Delivery');
-      add('Joakim Westberg', 'Bart Prudon', 'Safety Manager AOC, ATO & CAMO');
-
-      const chart = new google.visualization.OrgChart(document.getElementById('chart_div'));
-
-      // Enable collapse/expand + HTML rendering
-      chart.draw(data, { allowHtml: true, allowCollapse: true, size: 'large' });
-
-      // Optional: handle node clicks (keeps default collapse/expand behavior)
-      google.visualization.events.addListener(chart, 'select', function () {
-        const sel = chart.getSelection()[0];
-        if (!sel) return;
-        const name = data.getValue(sel.row, 0); // node ID
-        // Example custom action:
-        // window.open(`/people/${encodeURIComponent(name)}`, '_blank');
-        console.log('Selected node:', name);
-      });
-    }
-  </script>
 </head>
 <body>
-  <div id="chart_wrap">
-    <div id="chart_div"></div>
+  <div id="chart-wrap">
+    <div id="chart"></div>
   </div>
+
+  <script>
+    // Build the hierarchy as nested JSON
+    const ds = {
+      name: 'Kenton Jarvis',
+      title: '',
+      children: [
+        { name: 'Sophie Dekkers', title: 'Chief Commercial Officer' },
+        { name: 'Robert Birge', title: 'Chief Customer and Marketing Officer' },
+        { name: 'Donna Collins', title: 'Executive Assistant to CEO' },
+        {
+          name: 'David Morgan', title: 'Chief Operations Officer',
+          children: [
+            { name: 'Daniele Grassini', title: 'Director of Training and Standards' },
+            { name: 'Michael Brown', title: 'Director of Cabin Services' },
+            { name: 'Neil Slaven', title: 'Director of Operations Strategy and Planning' },
+            { name: 'Karen Honour', title: 'Executive Assistant' },
+            { name: 'Simon Cox', title: 'Director of Ground Operations' },
+            { name: 'Chris Hartman', title: 'Operations Consultant' },
+            { name: 'Gill Baudot', title: 'Director of Network Control' },
+            { name: 'Brendan McConnellogue', title: 'Director of Engineering & Maintenance' },
+            {
+              name: 'Bart Prudon', title: 'Director of Flight Operations',
+              children: [
+                { name: 'Jamie Fraser', title: 'Head of Operations Transformation' },
+                { name: 'Alexander Gerritsen', title: 'Chief Pilot' },
+                { name: 'Paul Ingram', title: 'Head of Flight Crew Operations' },
+                { name: 'Emily Tollafield', title: 'Head of Business Delivery' },
+                { name: 'Joakim Westberg', title: 'Safety Manager AOC, ATO & CAMO' }
+              ]
+            },
+            { name: 'Jim Pegram', title: 'Director Safety, Security & Compliance' },
+            { name: 'Hugh McConnellogue', title: 'Director of Gatwick' },
+            { name: 'Jean-Marc Thevenaz', title: 'Managing Director Switzerland' }
+          ]
+        },
+        { name: 'Opal Perry', title: 'Chief Data and Technology Officer' },
+        { name: 'Thomas Haagensen', title: 'Group Markets Director' },
+        { name: 'Rebecca Mills', title: 'Group General Counsel and Company Secretary' },
+        { name: 'Elly Tomlins', title: 'Chief People Officer' },
+        { name: 'Garry Wilson', title: 'Chief Executive Officer – easyJet Holidays' },
+        { name: 'Jan De Raeymaeker', title: 'Chief Financial Officer' }
+      ]
+    };
+
+    $(function () {
+      $('#chart').orgchart({
+        data: ds,
+        nodeTitle: 'name',
+        nodeContent: 'title',
+        pan: true,          // click-drag to move
+        zoom: true,         // Ctrl/trackpad zoom
+        direction: 't2b',   // top-to-bottom
+        depth: 2,           // initially show two levels (click to expand deeper)
+        toggleSiblingsResp: true,
+      });
+
+      // Optional: click handler (keeps built-in expand/collapse)
+      $('#chart').on('click', '.node', function (e) {
+        const $node = $(this);
+        const name = $node.find('.title').text().trim() || $node.find('.title').attr('title');
+        const role = $node.find('.content').text().trim();
+        console.log('Selected:', name, '|', role);
+        // Example: window.open(`/people/${encodeURIComponent(name)}`, '_blank');
+      });
+    });
+  </script>
 </body>
 </html>
+```
