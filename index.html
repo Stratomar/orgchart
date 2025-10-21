@@ -70,11 +70,18 @@
       add('Joakim Westberg', 'Bart Prudon', 'Safety Manager AOC, ATO & CAMO');
 
       const chart = new google.visualization.OrgChart(document.getElementById('chart_div'));
-      chart.draw(data, { allowHtml: true, size: 'large' });
 
-      // Optional: toggle on node click (built-in expand/collapse); keep default behavior.
-      google.visualization.events.addListener(chart, 'select', function() {
-        // Default orgchart already collapses/expands on node click.
+      // Enable collapse/expand + HTML rendering
+      chart.draw(data, { allowHtml: true, allowCollapse: true, size: 'large' });
+
+      // Optional: handle node clicks (keeps default collapse/expand behavior)
+      google.visualization.events.addListener(chart, 'select', function () {
+        const sel = chart.getSelection()[0];
+        if (!sel) return;
+        const name = data.getValue(sel.row, 0); // node ID
+        // Example custom action:
+        // window.open(`/people/${encodeURIComponent(name)}`, '_blank');
+        console.log('Selected node:', name);
       });
     }
   </script>
