@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>easyJet Org — d3-org-chart (browser build)</title>
+  <title>easyJet Org Chart</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    html, body { height:100%; margin:0; background:#f6f7f9; }
-    #chart { height:100vh; }
+    html, body { height: 100%; margin: 0; background: #f6f7f9; }
+    #chart { height: 100vh; }
   </style>
-  <!-- Use the "standalone" UMD build that attaches OrgChart to window.OrgChart -->
+
+  <!-- Correct script order -->
   <script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/d3-flextree@2.1.2/build/d3-flextree.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/d3-org-chart@2.6.0/build/d3-org-chart.js"></script>
@@ -29,6 +30,7 @@
       { id: 'Elly Tomlins', parentId: 'Kenton Jarvis', title: 'Chief People Officer' },
       { id: 'Garry Wilson', parentId: 'Kenton Jarvis', title: 'Chief Executive Officer – easyJet Holidays' },
       { id: 'Jan De Raeymaeker', parentId: 'Kenton Jarvis', title: 'Chief Financial Officer' },
+
       { id: 'Daniele Grassini', parentId: 'David Morgan', title: 'Director of Training and Standards' },
       { id: 'Michael Brown', parentId: 'David Morgan', title: 'Director of Cabin Services' },
       { id: 'Neil Slaven', parentId: 'David Morgan', title: 'Director of Operations Strategy and Planning' },
@@ -41,6 +43,7 @@
       { id: 'Jim Pegram', parentId: 'David Morgan', title: 'Director Safety, Security & Compliance' },
       { id: 'Hugh McConnellogue', parentId: 'David Morgan', title: 'Director of Gatwick' },
       { id: 'Jean-Marc Thevenaz', parentId: 'David Morgan', title: 'Managing Director Switzerland' },
+
       { id: 'Jamie Fraser', parentId: 'Bart Prudon', title: 'Head of Operations Transformation' },
       { id: 'Alexander Gerritsen', parentId: 'Bart Prudon', title: 'Chief Pilot' },
       { id: 'Paul Ingram', parentId: 'Bart Prudon', title: 'Head of Flight Crew Operations' },
@@ -48,46 +51,52 @@
       { id: 'Joakim Westberg', parentId: 'Bart Prudon', title: 'Safety Manager AOC, ATO & CAMO' }
     ];
 
-    // The UMD build exposes OrgChart as window.OrgChart (not d3.OrgChart)
-    const chart = new OrgChart()
-      .container('#chart')
-      .data(data)
-      .nodeWidth(() => 270)
-      .nodeHeight(() => 82)
-      .childrenMargin(() => 28)
-      .compact(true)
-      .initialZoom(0.9)
-      .onNodeClick(d => { chart.collapse(d); chart.render().fit(); })
-      .nodeContent(d => {
-        const title = d.data.title || '';
-        const collapsed = d.collapsed;
-        return `
-          <div style="width:260px;height:74px;box-sizing:border-box;background:#fff;
-            border:1px solid #e6e9ef;border-radius:12px;box-shadow:0 2px 8px rgba(17,24,39,0.08);
-            padding:12px 16px;position:relative;">
-            <div style="font-weight:700;font-size:15px;color:#111827;">${d.data.id}</div>
-            <div style="font-size:12.5px;color:#6b7280;margin-top:4px;">${title}</div>
-            ${
-              (d.children && d.children.length) || (d._children && d._children.length)
-              ? `<div style="
-                    position:absolute;right:8px;top:50%;transform:translateY(-50%);
-                    width:34px;height:34px;border-radius:50%;
-                    background:#ff6600;border:2px solid #fff;
-                    box-shadow:0 2px 6px rgba(0,0,0,0.18);
-                    display:flex;align-items:center;justify-content:center;
-                    cursor:pointer;user-select:none;"
-                    onclick="event.stopPropagation();(function(){
-                      const n = chart.getNodeById('${d.data.id}');
-                      chart.collapse(n); chart.render().fit();
-                    })()">
-                    <span style="color:#fff;font-size:22px;font-weight:800;">${collapsed ? '+' : '−'}</span>
-                 </div>`
-              : ''
-            }
-          </div>`;
-      })
-      .render()
-      .fit();
+    window.addEventListener("load", function () {
+      const chart = new OrgChart()
+        .container('#chart')
+        .data(data)
+        .nodeWidth(() => 270)
+        .nodeHeight(() => 82)
+        .childrenMargin(() => 28)
+        .compact(true)
+        .initialZoom(0.9)
+        .onNodeClick(d => {
+          chart.collapse(d);
+          chart.render().fit();
+        })
+        .nodeContent(d => {
+          const title = d.data.title || '';
+          const collapsed = d.collapsed;
+          return `
+            <div style="
+              width:260px;height:74px;box-sizing:border-box;background:#fff;
+              border:1px solid #e6e9ef;border-radius:12px;
+              box-shadow:0 2px 8px rgba(17,24,39,0.08);
+              padding:12px 16px;position:relative;">
+              <div style="font-weight:700;font-size:15px;color:#111827;">${d.data.id}</div>
+              <div style="font-size:12.5px;color:#6b7280;margin-top:4px;">${title}</div>
+              ${
+                (d.children && d.children.length) || (d._children && d._children.length)
+                ? `<div style="
+                      position:absolute;right:8px;top:50%;transform:translateY(-50%);
+                      width:34px;height:34px;border-radius:50%;
+                      background:#ff6600;border:2px solid #fff;
+                      box-shadow:0 2px 6px rgba(0,0,0,0.18);
+                      display:flex;align-items:center;justify-content:center;
+                      cursor:pointer;user-select:none;"
+                      onclick="event.stopPropagation();(function(){
+                        const n = chart.getNodeById('${d.data.id}');
+                        chart.collapse(n); chart.render().fit();
+                      })()">
+                      <span style="color:#fff;font-size:22px;font-weight:800;">${collapsed ? '+' : '−'}</span>
+                   </div>`
+                : ''
+              }
+            </div>`;
+        })
+        .render()
+        .fit();
+    });
   </script>
 </body>
 </html>
