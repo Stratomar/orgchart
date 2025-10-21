@@ -2,21 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>easyJet Org — d3-org-chart (large toggle)</title>
+  <title>easyJet Org — d3-org-chart</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     html, body { height:100%; margin:0; background:#f6f7f9; }
     #chart { height:100vh; }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-  <script src="https://cdn.jsdelivr.net/npm/d3-org-chart@3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-flextree@2.2.0/build/d3-flextree.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-org-chart@3.2.0"></script>
 </head>
 <body>
   <div id="chart"></div>
   <script>
     const data = [
       { id: 'Kenton Jarvis', title: '' },
-
       { id: 'Sophie Dekkers', parentId: 'Kenton Jarvis', title: 'Chief Commercial Officer' },
       { id: 'Robert Birge', parentId: 'Kenton Jarvis', title: 'Chief Customer and Marketing Officer' },
       { id: 'Donna Collins', parentId: 'Kenton Jarvis', title: 'Executive Assistant to CEO' },
@@ -27,7 +27,6 @@
       { id: 'Elly Tomlins', parentId: 'Kenton Jarvis', title: 'Chief People Officer' },
       { id: 'Garry Wilson', parentId: 'Kenton Jarvis', title: 'Chief Executive Officer – easyJet Holidays' },
       { id: 'Jan De Raeymaeker', parentId: 'Kenton Jarvis', title: 'Chief Financial Officer' },
-
       { id: 'Daniele Grassini', parentId: 'David Morgan', title: 'Director of Training and Standards' },
       { id: 'Michael Brown', parentId: 'David Morgan', title: 'Director of Cabin Services' },
       { id: 'Neil Slaven', parentId: 'David Morgan', title: 'Director of Operations Strategy and Planning' },
@@ -40,7 +39,6 @@
       { id: 'Jim Pegram', parentId: 'David Morgan', title: 'Director Safety, Security & Compliance' },
       { id: 'Hugh McConnellogue', parentId: 'David Morgan', title: 'Director of Gatwick' },
       { id: 'Jean-Marc Thevenaz', parentId: 'David Morgan', title: 'Managing Director Switzerland' },
-
       { id: 'Jamie Fraser', parentId: 'Bart Prudon', title: 'Head of Operations Transformation' },
       { id: 'Alexander Gerritsen', parentId: 'Bart Prudon', title: 'Chief Pilot' },
       { id: 'Paul Ingram', parentId: 'Bart Prudon', title: 'Head of Flight Crew Operations' },
@@ -62,9 +60,9 @@
         const collapsed = d.collapsed;
         return `
           <div style="
-            width:260px;height:74px;box-sizing:border-box;
-            background:#fff;border:1px solid #e6e9ef;border-radius:12px;
-            box-shadow:0 2px 8px rgba(17,24,39,0.08);padding:12px 16px;position:relative;">
+            width:260px;height:74px;box-sizing:border-box;background:#fff;
+            border:1px solid #e6e9ef;border-radius:12px;box-shadow:0 2px 8px rgba(17,24,39,0.08);
+            padding:12px 16px;position:relative;">
             <div style="font-weight:700;font-size:15px;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
               ${d.data.id}
             </div>
@@ -76,10 +74,8 @@
               ? `<div style="
                     position:absolute;right:8px;top:50%;transform:translateY(-50%);
                     width:34px;height:34px;border-radius:50%;
-                    background:#ff6600;border:2px solid #fff;
-                    box-shadow:0 2px 6px rgba(0,0,0,0.18);
-                    display:flex;align-items:center;justify-content:center;
-                    cursor:pointer;user-select:none;"
+                    background:#ff6600;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.18);
+                    display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;"
                     onclick="event.stopPropagation();(function(){
                       const n = chart.getNodeById('${d.data.id}');
                       chart.collapse(n); chart.render().fit();
