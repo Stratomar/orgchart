@@ -2,89 +2,161 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>easyJet Org Chart (dabeng/OrgChart.js)</title>
+  <title>easyJet Org – AntV G6 (TreeGraph)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <!-- OrgChart.js (open source MIT) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/orgchart/dist/css/jquery.orgchart.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/orgchart/dist/js/jquery.orgchart.min.js"></script>
-
   <style>
-    html, body { height: 100%; margin: 0; background:#fafafa; }
-    #chart-container { height: 100vh; padding: 16px; box-sizing: border-box; }
-    .orgchart { background: #fff; border: none; }
-    .orgchart .node .title { background-color: #ff6600; color: #fff; font-weight: 600; }
-    .orgchart .node .content { border-color: #ff6600; color: #333; }
-    .orgchart .node:hover { box-shadow: 0 0 8px rgba(0,0,0,0.3); }
+    html, body { height:100%; margin:0; background:#f6f7f9; }
+    #mount { height:100vh; }
+    .node-card-title { font-weight:600; font-size:14px; fill:#111; }
+    .node-card-sub { font-size:12px; fill:#586174; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@antv/g6@5/dist/g6.min.js"></script>
 </head>
 <body>
-  <div id="chart-container"></div>
+  <div id="mount"></div>
 
   <script>
-    // Org structure JSON
-    const datasource = {
-      name: 'Kenton Jarvis',
-      title: 'Group CEO',
+    // ----- Data (id, parentId) -----
+    const data = {
+      id: 'Kenton Jarvis',
+      title: '',
       children: [
-        { name: 'Sophie Dekkers', title: 'Chief Commercial Officer' },
-        { name: 'Robert Birge', title: 'Chief Customer & Marketing Officer' },
-        { name: 'Donna Collins', title: 'Executive Assistant to CEO' },
+        { id: 'Sophie Dekkers', title: 'Chief Commercial Officer' },
+        { id: 'Robert Birge', title: 'Chief Customer and Marketing Officer' },
+        { id: 'Donna Collins', title: 'Executive Assistant to CEO' },
         {
-          name: 'David Morgan', title: 'Chief Operations Officer',
-          children: [
-            { name: 'Daniele Grassini', title: 'Director Training & Standards' },
-            { name: 'Michael Brown', title: 'Director Cabin Services' },
-            { name: 'Neil Slaven', title: 'Director Ops Strategy & Planning' },
-            { name: 'Karen Honour', title: 'Executive Assistant' },
-            { name: 'Simon Cox', title: 'Director Ground Operations' },
-            { name: 'Chris Hartman', title: 'Operations Consultant' },
-            { name: 'Gill Baudot', title: 'Director Network Control' },
-            { name: 'Brendan McConnellogue', title: 'Director Engineering & Maintenance' },
+          id: 'David Morgan', title: 'Chief Operations Officer', children: [
+            { id: 'Daniele Grassini', title: 'Director of Training and Standards' },
+            { id: 'Michael Brown', title: 'Director of Cabin Services' },
+            { id: 'Neil Slaven', title: 'Director of Operations Strategy and Planning' },
+            { id: 'Karen Honour', title: 'Executive Assistant' },
+            { id: 'Simon Cox', title: 'Director of Ground Operations' },
+            { id: 'Chris Hartman', title: 'Operations Consultant' },
+            { id: 'Gill Baudot', title: 'Director of Network Control' },
+            { id: 'Brendan McConnellogue', title: 'Director of Engineering & Maintenance' },
             {
-              name: 'Bart Prudon', title: 'Director Flight Operations',
-              children: [
-                { name: 'Jamie Fraser', title: 'Head Operations Transformation' },
-                { name: 'Alexander Gerritsen', title: 'Chief Pilot' },
-                { name: 'Paul Ingram', title: 'Head Flight Crew Operations' },
-                { name: 'Emily Tollafield', title: 'Head Business Delivery' },
-                { name: 'Joakim Westberg', title: 'Safety Manager AOC/ATO/CAMO' }
+              id: 'Bart Prudon', title: 'Director of Flight Operations', children: [
+                { id: 'Jamie Fraser', title: 'Head of Operations Transformation' },
+                { id: 'Alexander Gerritsen', title: 'Chief Pilot' },
+                { id: 'Paul Ingram', title: 'Head of Flight Crew Operations' },
+                { id: 'Emily Tollafield', title: 'Head of Business Delivery' },
+                { id: 'Joakim Westberg', title: 'Safety Manager AOC, ATO & CAMO' }
               ]
             },
-            { name: 'Jim Pegram', title: 'Director Safety, Security & Compliance' },
-            { name: 'Hugh McConnellogue', title: 'Director of Gatwick' },
-            { name: 'Jean-Marc Thevenaz', title: 'Managing Director Switzerland' }
+            { id: 'Jim Pegram', title: 'Director Safety, Security & Compliance' },
+            { id: 'Hugh McConnellogue', title: 'Director of Gatwick' },
+            { id: 'Jean-Marc Thevenaz', title: 'Managing Director Switzerland' }
           ]
         },
-        { name: 'Opal Perry', title: 'Chief Data & Technology Officer' },
-        { name: 'Thomas Haagensen', title: 'Group Markets Director' },
-        { name: 'Rebecca Mills', title: 'Group General Counsel & Co. Secretary' },
-        { name: 'Elly Tomlins', title: 'Chief People Officer' },
-        { name: 'Garry Wilson', title: 'CEO – easyJet Holidays' },
-        { name: 'Jan De Raeymaeker', title: 'Chief Financial Officer' }
+        { id: 'Opal Perry', title: 'Chief Data and Technology Officer' },
+        { id: 'Thomas Haagensen', title: 'Group Markets Director' },
+        { id: 'Rebecca Mills', title: 'Group General Counsel and Company Secretary' },
+        { id: 'Elly Tomlins', title: 'Chief People Officer' },
+        { id: 'Garry Wilson', title: 'Chief Executive Officer – easyJet Holidays' },
+        { id: 'Jan De Raeymaeker', title: 'Chief Financial Officer' }
       ]
     };
 
-    // Initialise org chart
-    $(function () {
-      $('#chart-container').orgchart({
-        data: datasource,
-        nodeTitle: 'name',
-        nodeContent: 'title',
-        direction: 't2b',
-        pan: true,
-        zoom: true,
-        toggleSiblingsResp: true,
-        visibleLevel: 2 // start with 2 levels visible (click to expand)
-      });
+    // ----- Custom "card" node -----
+    G6.registerNode('card-node', {
+      draw(cfg, group) {
+        const width = 260, height = 72, radius = 10;
+        const keyShape = group.addShape('rect', {
+          attrs: {
+            x: -width/2, y: -height/2, width, height, radius,
+            fill: '#ffffff', stroke: '#e6e9ef', lineWidth: 1.2,
+            shadowColor: 'rgba(17,24,39,0.08)', shadowBlur: 8, shadowOffsetY: 2
+          },
+          name: 'card-rect',
+        });
 
-      // Optional click handler
-      $('#chart-container').on('click', '.node', function (e) {
-        const name = $(this).find('.title').text().trim();
-        const role = $(this).find('.content').text().trim();
-        console.log('Clicked:', name, '-', role);
-      });
+        group.addShape('text', {
+          attrs: { x: -width/2 + 12, y: -10, text: cfg.id, fontSize: 14, fontWeight: 600, fill: '#111827' },
+          name: 'title',
+        });
+
+        group.addShape('text', {
+          attrs: { x: -width/2 + 12, y: 14, text: cfg.title || '', fontSize: 12, fill: '#6b7280' },
+          name: 'subtitle',
+        });
+
+        // Collapse/expand marker
+        if (cfg.children && cfg.children.length) {
+          group.addShape('circle', {
+            attrs: { x: width/2 - 14, y: 0, r: 10, fill: '#ff6600', cursor: 'pointer' },
+            name: 'collapse-btn-bg',
+            draggable: true
+          });
+          group.addShape('text', {
+            attrs: { x: width/2 - 14, y: 4, text: cfg.collapsed ? '+' : '−', fontSize: 16, textAlign: 'center', textBaseline: 'middle', fill: '#fff', cursor: 'pointer' },
+            name: 'collapse-btn',
+            draggable: true
+          });
+        }
+        return keyShape;
+      },
+      update: undefined,
+      getAnchorPoints() { return [[0.5, 1], [0.5, 0]]; }
+    }, 'single-node');
+
+    // ----- TreeGraph setup -----
+    const graph = new G6.TreeGraph({
+      container: 'mount',
+      width: document.getElementById('mount').clientWidth,
+      height: document.getElementById('mount').clientHeight,
+      modes: {
+        default: [
+          'drag-canvas', 'zoom-canvas',
+          {
+            type: 'collapse-expand',
+            onChange: (item, collapsed) => {
+              const model = item.getModel();
+              model.collapsed = collapsed;
+              return true;
+            }
+          }
+        ]
+      },
+      layout: {
+        type: 'compactBox',
+        direction: 'TB',        // top-to-bottom
+        getId: d => d.id,
+        getHeight: () => 80,
+        getWidth: () => 260,
+        getVGap: () => 24,
+        getHGap: () => 32
+      },
+      defaultNode: { type: 'card-node' },
+      defaultEdge: {
+        type: 'polyline',
+        style: { radius: 8, offset: 24, stroke: '#cbd5e1' }
+      }
+    });
+
+    graph.on('node:click', (ev) => {
+      const name = ev.item.getModel().id;
+      const title = ev.item.getModel().title || '';
+      console.log('Clicked:', name, '-', title);
+    });
+
+    // Click the orange pill to toggle collapse explicitly
+    graph.on('node:click', (ev) => {
+      const name = ev.target.get('name');
+      if (name === 'collapse-btn' || name === 'collapse-btn-bg') {
+        const item = ev.item;
+        graph.updateItem(item, { collapsed: !item.getModel().collapsed });
+        graph.layout();
+        graph.fitCenter();
+      }
+    });
+
+    graph.data(data);
+    graph.render();
+    graph.fitCenter();
+
+    // Handle resize
+    window.addEventListener('resize', () => {
+      graph.changeSize(document.getElementById('mount').clientWidth, document.getElementById('mount').clientHeight);
     });
   </script>
 </body>
