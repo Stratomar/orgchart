@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Org Chart</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    html, body { height: 100%; margin: 0; }
+    #chart_wrap { width: 100%; height: 100vh; overflow: auto; box-sizing: border-box; padding: 12px; }
+    #chart_div { width: 1200px; } /* make wider than iframe to encourage horizontal scrolling */
+    .title { color:#555; font-size: 12px; line-height: 1.2; }
+    .name { font-weight: 600; }
+  </style>
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+  <script>
+    google.charts.load('current', { packages: ['orgchart'] });
+    google.charts.setOnLoadCallback(drawChart);
+
+    function nodeHTML(name, title) {
+      if (!title) return `<div class="name">${name}</div>`;
+      return `<div class="name">${name}</div><div class="title">${title}</div>`;
+    }
+
+    function drawChart() {
+      const data = new google.visualization.DataTable();
+      data.addColumn('string', 'Name');
+      data.addColumn('string', 'Manager');
+      data.addColumn('string', 'Tooltip');
+
+      // Helper to add rows: id/name, manager, title (shown in node + tooltip)
+      function add(name, manager, title) {
+        const node = { v: name, f: nodeHTML(name, title) };
+        data.addRow([ node, manager || '', title || '' ]);
+      }
+
+      // Root (no title provided for Kenton Jarvis in your table)
+      add('Kenton Jarvis', '', '');
+
+      // Directs to Kenton
+      add('Sophie Dekkers', 'Kenton Jarvis', 'Chief Commercial Officer');
+      add('Robert Birge', 'Kenton Jarvis', 'Chief Customer and Marketing Officer');
+      add('Donna Collins', 'Kenton Jarvis', 'Executive Assistant to CEO');
+      add('David Morgan', 'Kenton Jarvis', 'Chief Operations Officer');
+      add('Opal Perry', 'Kenton Jarvis', 'Chief Data and Technology Officer');
+      add('Thomas Haagensen', 'Kenton Jarvis', 'Group Markets Director');
+      add('Rebecca Mills', 'Kenton Jarvis', 'Group General Counsel and Company Secretary');
+      add('Elly Tomlins', 'Kenton Jarvis', 'Chief People Officer');
+      add('Garry Wilson', 'Kenton Jarvis', 'Chief Executive Officer – easyJet Holidays');
+      add('Jan De Raeymaeker', 'Kenton Jarvis', 'Chief Financial Officer');
+
+      // Reports to David Morgan
+      add('Daniele Grassini', 'David Morgan', 'Director of Training and Standards');
+      add('Michael Brown', 'David Morgan', 'Director of Cabin Services');
+      add('Neil Slaven', 'David Morgan', 'Director of Operations Strategy and Planning');
+      add('Karen Honour', 'David Morgan', 'Executive Assistant');
+      add('Simon Cox', 'David Morgan', 'Director of Ground Operations');
+      add('Chris Hartman', 'David Morgan', 'Operations Consultant');
+      add('Gill Baudot', 'David Morgan', 'Director of Network Control');
+      add('Brendan McConnellogue', 'David Morgan', 'Director of Engineering & Maintenance');
+      add('Bart Prudon', 'David Morgan', 'Director of Flight Operations');
+      add('Jim Pegram', 'David Morgan', 'Director Safety, Security & Compliance');
+      add('Hugh McConnellogue', 'David Morgan', 'Director of Gatwick');
+      add('Jean-Marc Thevenaz', 'David Morgan', 'Managing Director Switzerland');
+
+      // Reports to Bart Prudon
+      add('Jamie Fraser', 'Bart Prudon', 'Head of Operations Transformation');
+      add('Alexander Gerritsen', 'Bart Prudon', 'Chief Pilot');
+      add('Paul Ingram', 'Bart Prudon', 'Head of Flight Crew Operations');
+      add('Emily Tollafield', 'Bart Prudon', 'Head of Business Delivery');
+      add('Joakim Westberg', 'Bart Prudon', 'Safety Manager AOC, ATO & CAMO');
+
+      const chart = new google.visualization.OrgChart(document.getElementById('chart_div'));
+      chart.draw(data, { allowHtml: true, size: 'large' });
+
+      // Optional: toggle on node click (built-in expand/collapse); keep default behavior.
+      google.visualization.events.addListener(chart, 'select', function() {
+        // Default orgchart already collapses/expands on node click.
+      });
+    }
+  </script>
+</head>
+<body>
+  <div id="chart_wrap">
+    <div id="chart_div"></div>
+  </div>
+</body>
+</html>
