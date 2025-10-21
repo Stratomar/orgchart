@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>easyJet Org – AntV G6 (TreeGraph, large toggle)</title>
+  <title>easyJet Org – G6 v4 (TreeGraph, large toggle)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     html, body { height:100%; margin:0; background:#f6f7f9; }
     #mount { height:100vh; }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/@antv/g6@5/dist/g6.min.js"></script>
+  <!-- Use G6 v4 (TreeGraph exists here) -->
+  <script src="https://cdn.jsdelivr.net/npm/@antv/g6@4.8.24/dist/g6.min.js"></script>
 </head>
 <body>
   <div id="mount"></div>
@@ -59,7 +60,8 @@
     G6.registerNode('card-node', {
       draw(cfg, group) {
         const width = 280, height = 78, radius = 12;
-        const keyShape = group.addShape('rect', {
+
+        const bg = group.addShape('rect', {
           attrs: {
             x: -width/2, y: -height/2, width, height, radius,
             fill: '#fff', stroke: '#e6e9ef', lineWidth: 1.2,
@@ -74,68 +76,54 @@
           name: 'title',
         });
 
-        // Title / role
+        // Role
         group.addShape('text', {
           attrs: { x: -width/2 + 16, y: 16, text: cfg.title || '', fontSize: 12.5, fill: '#6b7280' },
           name: 'subtitle',
         });
 
-        // Big, high-contrast collapse/expand pill (only if node has children)
+        // Big, high-contrast collapse/expand control
         if (cfg.children && cfg.children.length) {
           const x = width/2 - 20;
           const y = 0;
 
-          // Hitbox (larger transparent area for easier clicking)
           group.addShape('circle', {
             attrs: { x, y, r: 20, fill: 'transparent', cursor: 'pointer' },
-            name: 'collapse-hit',
+            name: 'collapse-hit', // big hitbox
             draggable: true
           });
 
-          // Visible button
           group.addShape('circle', {
             attrs: {
-              x, y, r: 16,
-              fill: '#ff6600',   // easyJet orange
-              stroke: '#fff',
-              lineWidth: 2,
-              cursor: 'pointer',
-              shadowColor: 'rgba(0,0,0,0.18)',
-              shadowBlur: 6
+              x, y, r: 16, fill: '#ff6600', stroke: '#fff', lineWidth: 2,
+              cursor: 'pointer', shadowColor: 'rgba(0,0,0,0.18)', shadowBlur: 6
             },
             name: 'collapse-btn-bg',
             draggable: true
           });
 
-          // Icon (+ / −), bold and centered
           group.addShape('text', {
             attrs: {
-              x, y: y + 1,
-              text: cfg.collapsed ? '+' : '−',
-              fontSize: 22,
-              fontWeight: 800,
-              textAlign: 'center',
-              textBaseline: 'middle',
-              fill: '#fff',
-              cursor: 'pointer'
+              x, y: y + 1, text: cfg.collapsed ? '+' : '−',
+              fontSize: 22, fontWeight: 800, textAlign: 'center',
+              textBaseline: 'middle', fill: '#fff', cursor: 'pointer'
             },
             name: 'collapse-btn',
             draggable: true
           });
         }
 
-        return keyShape;
+        return bg;
       },
       getAnchorPoints() { return [[0.5, 1], [0.5, 0]]; }
     }, 'single-node');
 
-    // ---------- TreeGraph ----------
+    // ---------- TreeGraph (v4 API) ----------
     const container = document.getElementById('mount');
     const graph = new G6.TreeGraph({
       container: 'mount',
       width: container.clientWidth,
       height: container.clientHeight,
-      // Pan & zoom, plus built-in collapse/expand
       modes: {
         default: [
           'drag-canvas',
@@ -143,8 +131,7 @@
           {
             type: 'collapse-expand',
             onChange: (item, collapsed) => {
-              const model = item.getModel();
-              model.collapsed = collapsed;
+              item.getModel().collapsed = collapsed;
               return true;
             }
           }
@@ -152,7 +139,7 @@
       },
       layout: {
         type: 'compactBox',
-        direction: 'TB', // top-to-bottom
+        direction: 'TB',
         getId: d => d.id,
         getHeight: () => 84,
         getWidth: () => 280,
@@ -163,10 +150,10 @@
       defaultEdge: { type: 'polyline', style: { radius: 8, offset: 24, stroke: '#cbd5e1' } }
     });
 
-    // Explicitly toggle when clicking the big orange button
+    // Click large orange button to toggle
     graph.on('node:click', (ev) => {
-      const targetName = ev.target && ev.target.get('name');
-      if (targetName === 'collapse-btn' || targetName === 'collapse-btn-bg' || targetName === 'collapse-hit') {
+      const n = ev.target && ev.target.get('name');
+      if (n === 'collapse-btn' || n === 'collapse-btn-bg' || n === 'collapse-hit') {
         const item = ev.item;
         const collapsed = !item.getModel().collapsed;
         graph.updateItem(item, { collapsed });
@@ -175,19 +162,10 @@
       }
     });
 
-    // Optional: log clicks on nodes
-    graph.on('node:click', (ev) => {
-      if (['collapse-btn','collapse-btn-bg','collapse-hit'].includes(ev.target?.get('name'))) return;
-      const m = ev.item.getModel();
-      console.log('Clicked:', m.id, '-', m.title || '');
-    });
-
-    // Render
     graph.data(data);
     graph.render();
     graph.fitCenter();
 
-    // Resize
     window.addEventListener('resize', () => {
       graph.changeSize(container.clientWidth, container.clientHeight);
     });
