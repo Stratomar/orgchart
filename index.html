@@ -2,92 +2,76 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Org Chart (Open-source: dabeng/orgchart)</title>
+  <title>easyJet Org – d3-org-chart</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- jQuery + OrgChart (MIT) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/orgchart/dist/css/jquery.orgchart.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/orgchart/dist/js/jquery.orgchart.min.js"></script>
-
   <style>
-    html, body { height: 100%; margin: 0; }
-    #chart-wrap { height: 100vh; overflow: hidden; box-sizing: border-box; padding: 12px; }
-    #chart { height: 100%; }
-    .orgchart { background: #fff; }
-    .orgchart .title { font-weight: 600; }
-    .orgchart .content { font-size: 12px; color: #555; }
+    html, body { height:100%; margin:0; }
+    #chart { height:100vh; }
+    .node-title { font-weight:600; font-size:14px; }
+    .node-sub { font-size:12px; color:#555; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-org-chart@3"></script>
 </head>
 <body>
-  <div id="chart-wrap">
-    <div id="chart"></div>
-  </div>
-
+  <div id="chart"></div>
   <script>
-    // Build the hierarchy as nested JSON
-    const ds = {
-      name: 'Kenton Jarvis',
-      title: '',
-      children: [
-        { name: 'Sophie Dekkers', title: 'Chief Commercial Officer' },
-        { name: 'Robert Birge', title: 'Chief Customer and Marketing Officer' },
-        { name: 'Donna Collins', title: 'Executive Assistant to CEO' },
-        {
-          name: 'David Morgan', title: 'Chief Operations Officer',
-          children: [
-            { name: 'Daniele Grassini', title: 'Director of Training and Standards' },
-            { name: 'Michael Brown', title: 'Director of Cabin Services' },
-            { name: 'Neil Slaven', title: 'Director of Operations Strategy and Planning' },
-            { name: 'Karen Honour', title: 'Executive Assistant' },
-            { name: 'Simon Cox', title: 'Director of Ground Operations' },
-            { name: 'Chris Hartman', title: 'Operations Consultant' },
-            { name: 'Gill Baudot', title: 'Director of Network Control' },
-            { name: 'Brendan McConnellogue', title: 'Director of Engineering & Maintenance' },
-            {
-              name: 'Bart Prudon', title: 'Director of Flight Operations',
-              children: [
-                { name: 'Jamie Fraser', title: 'Head of Operations Transformation' },
-                { name: 'Alexander Gerritsen', title: 'Chief Pilot' },
-                { name: 'Paul Ingram', title: 'Head of Flight Crew Operations' },
-                { name: 'Emily Tollafield', title: 'Head of Business Delivery' },
-                { name: 'Joakim Westberg', title: 'Safety Manager AOC, ATO & CAMO' }
-              ]
-            },
-            { name: 'Jim Pegram', title: 'Director Safety, Security & Compliance' },
-            { name: 'Hugh McConnellogue', title: 'Director of Gatwick' },
-            { name: 'Jean-Marc Thevenaz', title: 'Managing Director Switzerland' }
-          ]
-        },
-        { name: 'Opal Perry', title: 'Chief Data and Technology Officer' },
-        { name: 'Thomas Haagensen', title: 'Group Markets Director' },
-        { name: 'Rebecca Mills', title: 'Group General Counsel and Company Secretary' },
-        { name: 'Elly Tomlins', title: 'Chief People Officer' },
-        { name: 'Garry Wilson', title: 'Chief Executive Officer – easyJet Holidays' },
-        { name: 'Jan De Raeymaeker', title: 'Chief Financial Officer' }
-      ]
-    };
+    // Flat data (id, parentId). Titles shown in nodes.
+    const data = [
+      { id: 'Kenton Jarvis', title: '' },
 
-    $(function () {
-      $('#chart').orgchart({
-        data: ds,
-        nodeTitle: 'name',
-        nodeContent: 'title',
-        pan: true,          // click-drag to move
-        zoom: true,         // Ctrl/trackpad zoom
-        direction: 't2b',   // top-to-bottom
-        depth: 2,           // initially show two levels (click to expand deeper)
-        toggleSiblingsResp: true,
-      });
+      { id: 'Sophie Dekkers', parentId: 'Kenton Jarvis', title: 'Chief Commercial Officer' },
+      { id: 'Robert Birge', parentId: 'Kenton Jarvis', title: 'Chief Customer and Marketing Officer' },
+      { id: 'Donna Collins', parentId: 'Kenton Jarvis', title: 'Executive Assistant to CEO' },
+      { id: 'David Morgan', parentId: 'Kenton Jarvis', title: 'Chief Operations Officer' },
+      { id: 'Opal Perry', parentId: 'Kenton Jarvis', title: 'Chief Data and Technology Officer' },
+      { id: 'Thomas Haagensen', parentId: 'Kenton Jarvis', title: 'Group Markets Director' },
+      { id: 'Rebecca Mills', parentId: 'Kenton Jarvis', title: 'Group General Counsel and Company Secretary' },
+      { id: 'Elly Tomlins', parentId: 'Kenton Jarvis', title: 'Chief People Officer' },
+      { id: 'Garry Wilson', parentId: 'Kenton Jarvis', title: 'Chief Executive Officer – easyJet Holidays' },
+      { id: 'Jan De Raeymaeker', parentId: 'Kenton Jarvis', title: 'Chief Financial Officer' },
 
-      // Optional: click handler (keeps built-in expand/collapse)
-      $('#chart').on('click', '.node', function (e) {
-        const $node = $(this);
-        const name = $node.find('.title').text().trim() || $node.find('.title').attr('title');
-        const role = $node.find('.content').text().trim();
-        console.log('Selected:', name, '|', role);
-        // Example: window.open(`/people/${encodeURIComponent(name)}`, '_blank');
-      });
-    });
+      { id: 'Daniele Grassini', parentId: 'David Morgan', title: 'Director of Training and Standards' },
+      { id: 'Michael Brown', parentId: 'David Morgan', title: 'Director of Cabin Services' },
+      { id: 'Neil Slaven', parentId: 'David Morgan', title: 'Director of Operations Strategy and Planning' },
+      { id: 'Karen Honour', parentId: 'David Morgan', title: 'Executive Assistant' },
+      { id: 'Simon Cox', parentId: 'David Morgan', title: 'Director of Ground Operations' },
+      { id: 'Chris Hartman', parentId: 'David Morgan', title: 'Operations Consultant' },
+      { id: 'Gill Baudot', parentId: 'David Morgan', title: 'Director of Network Control' },
+      { id: 'Brendan McConnellogue', parentId: 'David Morgan', title: 'Director of Engineering & Maintenance' },
+      { id: 'Bart Prudon', parentId: 'David Morgan', title: 'Director of Flight Operations' },
+      { id: 'Jim Pegram', parentId: 'David Morgan', title: 'Director Safety, Security & Compliance' },
+      { id: 'Hugh McConnellogue', parentId: 'David Morgan', title: 'Director of Gatwick' },
+      { id: 'Jean-Marc Thevenaz', parentId: 'David Morgan', title: 'Managing Director Switzerland' },
+
+      { id: 'Jamie Fraser', parentId: 'Bart Prudon', title: 'Head of Operations Transformation' },
+      { id: 'Alexander Gerritsen', parentId: 'Bart Prudon', title: 'Chief Pilot' },
+      { id: 'Paul Ingram', parentId: 'Bart Prudon', title: 'Head of Flight Crew Operations' },
+      { id: 'Emily Tollafield', parentId: 'Bart Prudon', title: 'Head of Business Delivery' },
+      { id: 'Joakim Westberg', parentId: 'Bart Prudon', title: 'Safety Manager AOC, ATO & CAMO' }
+    ];
+
+    const chart = new d3.OrgChart()
+      .container('#chart')
+      .data(data)
+      .nodeWidth(d => 240)
+      .nodeHeight(d => 70)
+      .childrenMargin(d => 40)
+      .compact(true)
+      .initialZoom(0.9)
+      .zoom(true)
+      .onNodeClick(d => {               // collapse/expand on click
+        chart.collapse(d);
+        chart.render().fit();
+      })
+      .nodeContent(d => `
+        <div style="box-shadow:0 1px 3px rgba(0,0,0,0.2); border-radius:10px; padding:10px; background:#fff; width:230px; height:60px; box-sizing:border-box;">
+          <div class="node-title">${d.data.id}</div>
+          <div class="node-sub">${d.data.title || ''}</div>
+        </div>
+      `)
+      .render()
+      .fit();
   </script>
 </body>
 </html>
